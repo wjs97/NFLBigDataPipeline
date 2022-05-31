@@ -3,16 +3,16 @@ os: linux
 
 files:
   - source: /src
-    destination: /home/wjsjr/CodeDeploy/NFL
+    destination: /home/wjsjr/CodeDeploy/flight_and_weather
 
 permissions:
-  - object: /home/wjsjr/CodeDeploy/NFL
+  - object: /home/wjsjr/CodeDeploy/flight_and_weather
     pattern: "**"
     owner: wjsjr
     group: wjsjr
 
-  - object: /home/wjsjr/CodeDeploy/NFL
-    pattern: "NFL"
+  - object: /home/wjsjr/CodeDeploy
+    pattern: "flight_and_weather"
     owner: wjsjr
     group: wjsjr
     type:

@@ -10,3 +10,4 @@ insert overwrite table wjsjr_batchServing
 select wjsjr_trackingbatchview.key,
    wjsjr_trackingbatchview.s
    from wjsjr_trackingBatchView;
+cd

@@ -10,8 +10,7 @@ import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.hbase.HBaseConfiguration
-import org.apache.hadoop.hbase.client.ConnectionFactory
-import org.apache.hadoop.hbase.client.Put
+import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Put}
 import org.apache.hadoop.hbase.util.Bytes
 
 object StreamPlays {
@@ -30,7 +29,7 @@ object StreamPlays {
 
     // Create context with 2 second batch interval
     val sparkConf = new SparkConf().setAppName("StreamNFL")
-    val ssc = new StreamingContext(sparkConf, Seconds(2))
+    val ssc = new StreamingContext(sparkConf, Seconds(10))
 
     // Create direct kafka stream with brokers and topics
     val topicsSet = Set("wjsjr_speed_layer")
@@ -48,18 +47,10 @@ object StreamPlays {
       Subscribe[String, String](topicsSet, kafkaParams)
     )
 
-    stream.print()
-
     // Get the lines, split them into words, count the words and print
     val serializedRecords = stream.map(_.value);
-
     serializedRecords.print()
-    serializedRecords.saveAsTextFiles("hdfs:///wjsjr/kafkaConsumerTest", "txt")
-    val data = serializedRecords.map(rec => mapper.readValue(rec, classOf[NFLRow]))
-    data.print()
-    data.saveAsTextFiles("hdfs:///wjsjr/kafkaConsumerTest", "csv")
-    
-    // Start the computation
+    serializedRecords.saveAsTextFiles("hdfs:///wjsjr/SpeedLayerOutput/frame", ".txt")
     ssc.start()
     ssc.awaitTermination()
 

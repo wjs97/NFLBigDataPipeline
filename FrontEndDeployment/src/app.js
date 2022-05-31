@@ -34,8 +34,8 @@ function rowToMap(row) {
 app.get('/topSpeed',function (req, res) {
     let key = buildHbaseKey(req.query);
     var template = filesystem.readFileSync("topSpeed.mustache").toString();
+    console.log(key)
     if (key === "INVALID INPUT"){
-        console.log("Cato")
         var html = mustache.render(template, {
             topSpeed: key
         });
@@ -44,21 +44,58 @@ app.get('/topSpeed',function (req, res) {
 
     else{
         //Query From Hbase
-        hclient.table("wjsjr_batchServing").row(key).get('speed', function(err, row) {
-            let speed = "Bye Week!"
+        hclient.table("wjsjr_batchServing").row(key).get('speed', function(err, batchRow) {
+            hclient.table("wjsjr_speedServing").row(key).get('speed', function(err, speedRow) {
+                let speedSpeed = 0
+                let batchSpeed = 0
+                let speed = 0
 
-            //If Key does not appear in Hbase, team had a bye this week
-            if (row != null){
-                const map = rowToMap(row);
-                speed = map["speed:s"];
-                console.log(map);
-            }
-            //Row should have top speed of fastest player, playerName, teamName
-            var html = mustache.render(template, {
-                topSpeed: speed
+                //If Key does not appear in Hbase, team had a bye this week
+                if (speedRow != null){
+                    const map = rowToMap(speedRow);
+                    speedSpeed =  map["speed:s"];
+                    console.log("speedspeed", speedSpeed)
+                }
+
+                if (batchRow != null){
+                    const map = rowToMap(batchRow);
+                    batchSpeed =  map["speed:s"];
+                    console.log("batchSpeed", batchSpeed)
+                }
+
+                if (batchSpeed == 0 && speedSpeed == 0){
+                    speed = "Bye Week!"
+                }
+
+                else if (speedSpeed == 0){
+                    speed = batchSpeed
+                }
+
+                else if (batchSpeed == 0){
+                    speed = speedSpeed
+                }
+
+                else{
+                    batchSpeed = parseFloat(batchSpeed)
+                    speedSpeed = parseFloat(speedSpeed)
+                    speed = Math.max(batchSpeed, speedSpeed)
+                }
+
+
+
+                //Row should have top speed of fastest player, playerName, teamName
+                var html = mustache.render(template, {
+                    topSpeed: speed
+                });
+
+                res.send(html);
+
             });
-            res.send(html);
+
+    
         });
+
+        
     }
 
 
@@ -80,7 +117,7 @@ function buildHbaseKey(query) {
     }
 
     else{
-        return "\"" + team + "\"" + "$" + year + "$" + week;
+        return  team + "$" + year + "$" + week;
     }
 
 

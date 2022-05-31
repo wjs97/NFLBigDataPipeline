@@ -1,22 +1,10 @@
 This was final capstone for Big Data Application Architecture course I took with Professor Michael Spertus (https://cs.uchicago.edu/people/michael-spertus/)
-while at UChicago. I built a data pipeline and simple Javascript pipeline which allowed users to query NFL tracking dataset.
+while at UChicago. I built a Big data pipeline serving a simple Javascript client which allowed users to query on-field player speeds from a massive NFL tracking dataset(https://www.kaggle.com/c/nfl-big-data-bowl-2022)
 
 This pipeline was built using a "Lambda Architecture" (https://databricks.com/glossary/lambda-architecture), with Apache Spark + Hive (Batch Layer), 
 Kafka (Streaming Layer), Hbase (Serving Layer), serving a Javascript client sitting on top of an AWS Cloud Native backend (Cloud deploy + EC2).
 
-We deployed our data pipelines on a 
-
-
-
-How to run speed layer (I recommend using 3 seperate terminals to monitor logs)
-
-yarn jar /home/hadoop/wjsjr/src/target/uber-Kafka-Producer-0.0.1-SNAPSHOT.jar org.wjsjr.KafkaProducer
-
-spark-submit --master local[2] --class StreamPlays /home/hadoop/wjsjr/src/target/uber-KafkaConsumer-1.0-SNAPSHOT.jar 
-
-./home/hadoop/wjsjr/runSpeedLayer.sh
-
-
+We deployed our data pipelines on an EMR Cluster, I've done my best to include all the scripts and configurations used for deployment
 
 Abstract
 I built an application that allows users to analyze NFL data. My data comes from the "NFL Big Data Bowl 2022" (https://www.kaggle.com/c/nfl-big-data-bowl-2022), and includes detailed, frame-by-frame tracking data for special teams players on every play of the 2018, 2019 and 2020 seasons. Users can enter in a team abbreviation (ex. CHI or DEN), Year and Week # and view the top speed (in Yards/Second) any player ran during the selected game. To accomplish this, I implemented Nathan Marz' Lambda Architecture as described in class. I will describe my architecture and implementation details below
@@ -89,7 +77,7 @@ I also think that having seperate hbase tables for batch and speed provides a hi
 
 The biggest flaw in my speed layer is clearly the fact that I never merged it into the data lake. Although the speed serving layer is clearly scalable on its own, this prevents the data lake from being a single source of ground truth.
 
-If I had more time (and energy left) I was planning on modifiying my system to have the hbase writer rename files that it had read (so that they wouldnt be read again) instead of deleting them. I would then have a cron job which moved the used speed files into the data lake and recomputed batch views. I would then clear out my speed hbase table.
+If I had more time, I was planning on modifiying my system to have the hbase writer rename files that it had read (so that they wouldnt be read again) instead of deleting them. I would then have a cron job which moved the used speed files into the data lake and recomputed batch views. I would then clear out my speed hbase table.
 
 Kafka Topic: "wjsjr_speed_layer"
 To run Kafka Producer (from EMR cluster terminal): yarn jar /home/hadoop/wjsjr/src/target/uber-Kafka-Producer-0.0.1-SNAPSHOT.jar org.wjsjr.KafkaProducer
@@ -101,12 +89,22 @@ To run hbase writer (needs consumer and producer running to work properly):
 ./home/hadoop/wjsjr/runSpeedLayer.sh)
 
 
+
 Frontend / Deployment
 
-My front end closely followed the template provided in our weather app. I built a node / express app, which takes user input from an HTML form and queries the serving layer. I make seperate calls to the batch and speed tables in the serving layer and return the highest speed found in either table. It then uses mustache to render the query results (i.e. top speed for given game) and displays them to the user. I included some simple error handling (dealing with missing data in hbase due to NFL bye weeks, and handling invalid form data).
+I built a node / express app, which takes user input from an HTML form and queries the serving layer. I make seperate calls to the batch and speed tables in the serving layer and return the highest speed found in either table. It then uses mustache to render the query results (i.e. top speed for given game) and displays them to the user. I included some simple error handling (dealing with missing data in hbase due to NFL bye weeks, and handling invalid form data).
 
-I deployed the data scalably using code deploy and a load balancer as described in lecture. I've included all of my deployment configs, and front end src code (appspec.yaml, shell scripts...) in the submission under the Front End / Deployment sub directory.
+I deployed the data scalably using code deploy and a load balancer. I've included all of my deployment configs, and front end src code (appspec.yaml, shell scripts...) in the submission under the Front End / Deployment sub directory.
 
+
+
+How to run speed layer (I recommend using 3 seperate terminals to monitor logs)
+
+yarn jar /home/hadoop/wjsjr/src/target/uber-Kafka-Producer-0.0.1-SNAPSHOT.jar org.wjsjr.KafkaProducer
+
+spark-submit --master local[2] --class StreamPlays /home/hadoop/wjsjr/src/target/uber-KafkaConsumer-1.0-SNAPSHOT.jar 
+
+./home/hadoop/wjsjr/runSpeedLayer.sh
 
 
 

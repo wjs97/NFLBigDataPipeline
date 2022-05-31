@@ -1,6 +1,10 @@
-William Sayre Final Project
+This was final capstone for Big Data Application Architecture course I took with Professor Michael Spertus (https://cs.uchicago.edu/people/michael-spertus/) while at UChicago. I built a data pipeline and simple Javascript pipeline which allowed users to query NFL tracking dataset.
 
-How to access my application: http://wjsjr-lb-994558350.us-east-2.elb.amazonaws.com/
+This pipeline was built using a "Lambda Architecture" (https://databricks.com/glossary/lambda-architecture), with Apache Spark + Hive (Batch Layer), Kafka (Streaming Layer), Hbase (Serving Layer), serving a Javascript client sitting on top of an AWS Cloud Native backend (Cloud deploy + EC2).
+
+We deployed our data pipelines on a 
+
+
 
 How to run speed layer (I recommend using 3 seperate terminals to monitor logs)
 

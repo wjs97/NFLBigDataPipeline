@@ -2,7 +2,7 @@ This was final capstone for Big Data Application Architecture course I took with
 while at UChicago. I built a Big data pipeline serving a simple Javascript client which allowed users to query on-field player speeds from a massive NFL tracking dataset.
 
 This pipeline was built using a "Lambda Architecture" (https://databricks.com/glossary/lambda-architecture), with Apache Spark + Hive (Batch Layer), 
-Kafka (Streaming Layer), Hbase (Serving Layer), serving a Javascript client sitting on top of an AWS Cloud Native backend (Cloud deploy + EC2).
+Kafka (Streaming Layer), Hbase (Serving Layer), serving a Javascript client sitting on top of an AWS Cloud Native backend (Code deploy + EC2).
 
 We deployed our data pipelines on an EMR Cluster, I've done my best to include all the scripts and configurations used for deployment
 
